@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using WalletAppication.Interfaces;
+using WalletAppication.Repositories;
 using WalletAppication.Services;
+using WalletApplication.Domain;
 using WalletApplication.Entities;
 using WalletApplication.Interfaces;
 
@@ -7,13 +9,15 @@ namespace WalletApplication.Services
 {
     public class WalletService : IWalletService
     {
-        private readonly AppDbContext _dbContext;
         private readonly CurrencyCacheService _currencyCacheService;
+        private readonly IAdjustmentStrategyFactory _strategyFactory;
+        private readonly IWalletRepository _walletRepository;
 
-        public WalletService(AppDbContext dbContext, CurrencyCacheService currencyCacheService)
+        public WalletService(CurrencyCacheService currencyCacheService, IAdjustmentStrategyFactory strategyFactory, IWalletRepository walletRepository)
         {
-            _dbContext = dbContext;
             _currencyCacheService = currencyCacheService;
+            _strategyFactory = strategyFactory;
+            _walletRepository = walletRepository;
         }
 
         public async Task<Wallet> CreateWalletAsync(decimal initialBalance, string currency)
@@ -24,14 +28,12 @@ namespace WalletApplication.Services
                 Currency = currency
             };
 
-            _dbContext.Wallet.Add(wallet);
-            await _dbContext.SaveChangesAsync();
-            return wallet;
+            return await _walletRepository.CreateAsync(wallet);
         }
 
         public async Task<Wallet> GetWalletBalanceAsync(long walletId, string currency)
         {
-            var wallet = await _dbContext.Wallet.FirstOrDefaultAsync(w => w.Id == walletId);
+            var wallet = await _walletRepository.GetByIdAsync(walletId);
 
             if (wallet == null)
                 throw new Exception("Wallet not found");
@@ -53,26 +55,15 @@ namespace WalletApplication.Services
             if (wallet == null)
                 throw new Exception("Wallet not found");
 
-            // Apply strategy for adjusting the wallet balance
-            if (strategy == "AddFundsStrategy")
-            {
-                wallet.Balance += amount;
-            }
-            else if (strategy == "SubtractFundsStrategy")
-            {
-                if(wallet.Balance - amount > 0)
-                    wallet.Balance -= amount;
-            }
-            else if (strategy == "ForceSubtractFundsStrategy")
-            {
-                wallet.Balance -= amount;
-            }
-            else
-            {
-                throw new Exception("Unknown strategy");
-            }
+            // Get the correct adjustment strategy via the factory
+            var adjustmentStrategy = _strategyFactory.Create(strategy);
 
-            await _dbContext.SaveChangesAsync();
+            // Apply the strategy to adjust the wallet balance
+            adjustmentStrategy.AdjustBalance(wallet, amount);
+
+            // Update the wallet in the database
+            await _walletRepository.UpdateAsync(wallet);
+
             return wallet;
         }
     }

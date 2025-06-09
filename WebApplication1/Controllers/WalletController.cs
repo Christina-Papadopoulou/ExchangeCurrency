@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using WalletAppication.Attributes;
 using WalletAppication.Models;
 using WalletApplication.Interfaces;
 
@@ -9,24 +10,32 @@ namespace WalletApplication.Controllers
     public class WalletController : ControllerBase
     {
         private readonly IWalletService _walletService;
-        private readonly ILogger<WalletController> _logger;
 
-        public WalletController(ILogger<WalletController> logger, IWalletService walletService)
+        public WalletController(IWalletService walletService)
         {
-            _logger = logger;
             _walletService = walletService;
         }
 
         // Create Wallet
         [HttpPost]
+        [RateLimit("wallet/createwallet")]
         public async Task<IActionResult> CreateWallet([FromBody] CreateWalletRequest request)
         {
-            var wallet = await _walletService.CreateWalletAsync(request.InitialBalance, request.Currency);
-            return CreatedAtAction(nameof(GetWalletBalance), new { walletId = wallet.Id }, wallet);
+            try
+            {
+                var wallet = await _walletService.CreateWalletAsync(request.InitialBalance, request.Currency);
+
+                return CreatedAtAction(nameof(GetWalletBalance), new { walletId = wallet.Id }, wallet);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // Retrieve Wallet Balance
         [HttpGet("{walletId}")]
+        [RateLimit("wallet/getbalance")]
         public async Task<IActionResult> GetWalletBalance(long walletId, [FromQuery] string currency)
         {
             try
@@ -42,6 +51,7 @@ namespace WalletApplication.Controllers
 
         // Adjust Wallet Balance
         [HttpPost("{walletId}/adjustbalance")]
+        [RateLimit("wallet/adjustbalance")]
         public async Task<IActionResult> AdjustWalletBalance(long walletId, [FromQuery] decimal amount, [FromQuery] string currency, [FromQuery] string strategy)
         {
             try

@@ -3,6 +3,9 @@ using ECBGateway;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System.Data;
+using WalletAppication.Factories;
+using WalletAppication.Interfaces;
+using WalletAppication.Repositories;
 using WalletApplication.Interfaces;
 using WalletApplication.Services;
 
@@ -20,6 +23,8 @@ namespace WalletAppication.Modules
         {
             builder.RegisterType<WalletService>().As<IWalletService>().InstancePerLifetimeScope();
             builder.RegisterType<ECBClient>().As<IECBClient>().InstancePerLifetimeScope();
+            builder.RegisterType<WalletRepository>().As<IWalletRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<AdjustmentStrategyFactory>().As<IAdjustmentStrategyFactory>().InstancePerLifetimeScope();
             // Register IDbConnection for SQL Server
             builder.Register(c =>
             {

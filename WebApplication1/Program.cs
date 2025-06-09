@@ -3,7 +3,7 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using WalletAppication.Modules;
 using WalletAppication.Services;
-using WalletApplication;
+using WalletApplication.Domain;
 using WalletApplication.Jobs;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,7 +30,8 @@ builder.Services.AddSwaggerGen();
 
 // 5. Register MemoryCache and CurrencyCacheService
 builder.Services.AddMemoryCache(); 
-builder.Services.AddScoped<CurrencyCacheService>(); 
+builder.Services.AddScoped<CurrencyCacheService>();
+builder.Services.AddSingleton<RateLimiterService>();
 
 // 5. Register the background service for periodic tasks.
 builder.Services.AddHostedService<UpdateRatesPeriodically>();

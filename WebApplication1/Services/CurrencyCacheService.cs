@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using WalletApplication;
+using WalletApplication.Domain;
 
 namespace WalletAppication.Services
 {

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using WalletApplication.Entities;
 
-namespace WalletApplication
+namespace WalletApplication.Domain
 {
     public class AppDbContext : DbContext
     {

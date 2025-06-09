@@ -1,0 +1,6 @@
+@WalletApplication_HostAddress = http://localhost:5073
+
+GET {{WalletApplication_HostAddress}}/wallet/
+Accept: application/json
+
+###

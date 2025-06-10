@@ -2,6 +2,7 @@
 using ECBGateway;
 using ECBGateway.Model;
 using System.Data;
+using WalletAppication.Interfaces;
 using WalletAppication.Services;
 
 namespace WalletApplication.Jobs
@@ -10,9 +11,9 @@ namespace WalletApplication.Jobs
     {
         private readonly IServiceProvider _services;
         private readonly ILogger<UpdateRatesPeriodically> _logger;
-        private readonly CurrencyCacheService _currencyCacheService;
+        private readonly ICurrencyCacheService _currencyCacheService;
 
-        public UpdateRatesPeriodically(IServiceProvider services, ILogger<UpdateRatesPeriodically> logger, CurrencyCacheService currencyCacheService)
+        public UpdateRatesPeriodically(IServiceProvider services, ILogger<UpdateRatesPeriodically> logger, ICurrencyCacheService currencyCacheService)
         {
             _services = services;
             _logger = logger;

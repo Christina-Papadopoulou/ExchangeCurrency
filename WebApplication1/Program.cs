@@ -28,10 +28,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// 5. Register MemoryCache and CurrencyCacheService
-builder.Services.AddMemoryCache(); 
-builder.Services.AddScoped<CurrencyCacheService>();
-builder.Services.AddSingleton<RateLimiterService>();
+// 5. Register MemoryCache
+builder.Services.AddMemoryCache();
 
 // 5. Register the background service for periodic tasks.
 builder.Services.AddHostedService<UpdateRatesPeriodically>();

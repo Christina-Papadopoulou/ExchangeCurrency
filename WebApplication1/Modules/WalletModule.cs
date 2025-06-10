@@ -6,6 +6,7 @@ using System.Data;
 using WalletAppication.Factories;
 using WalletAppication.Interfaces;
 using WalletAppication.Repositories;
+using WalletAppication.Services;
 using WalletApplication.Interfaces;
 using WalletApplication.Services;
 
@@ -24,7 +25,12 @@ namespace WalletAppication.Modules
             builder.RegisterType<WalletService>().As<IWalletService>().InstancePerLifetimeScope();
             builder.RegisterType<ECBClient>().As<IECBClient>().InstancePerLifetimeScope();
             builder.RegisterType<WalletRepository>().As<IWalletRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<CurrencyRateRepository>().As<ICurrencyRateRepository>().InstancePerLifetimeScope();
+            builder.RegisterType<CurrencyService>().As<ICurrencyService>().InstancePerLifetimeScope();
             builder.RegisterType<AdjustmentStrategyFactory>().As<IAdjustmentStrategyFactory>().InstancePerLifetimeScope();
+            builder.RegisterType<RateLimiterService>().As<IRateLimiterService>().InstancePerLifetimeScope();
+            builder.RegisterType<CurrencyCacheService>().As<ICurrencyCacheService>().InstancePerLifetimeScope();
+
             // Register IDbConnection for SQL Server
             builder.Register(c =>
             {

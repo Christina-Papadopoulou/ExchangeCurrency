@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using WalletAppication.Interfaces;
 using WalletApplication.Domain;
 
 namespace WalletAppication.Services
 {
-    public class CurrencyCacheService
+    public class CurrencyCacheService : ICurrencyCacheService
     {
         private readonly IMemoryCache _memoryCache;
         private readonly AppDbContext _dbContext;

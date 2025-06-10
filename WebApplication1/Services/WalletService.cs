@@ -9,15 +9,18 @@ namespace WalletApplication.Services
 {
     public class WalletService : IWalletService
     {
-        private readonly CurrencyCacheService _currencyCacheService;
+        private readonly ICurrencyCacheService _currencyCacheService;
         private readonly IAdjustmentStrategyFactory _strategyFactory;
         private readonly IWalletRepository _walletRepository;
+        private readonly ICurrencyService _currencyService;
 
-        public WalletService(CurrencyCacheService currencyCacheService, IAdjustmentStrategyFactory strategyFactory, IWalletRepository walletRepository)
+        public WalletService(ICurrencyCacheService currencyCacheService, IAdjustmentStrategyFactory strategyFactory, IWalletRepository walletRepository,
+            ICurrencyRateRepository currencyRateRepository, ICurrencyService currencyService)
         {
             _currencyCacheService = currencyCacheService;
             _strategyFactory = strategyFactory;
             _walletRepository = walletRepository;
+            _currencyService = currencyService;
         }
 
         public async Task<Wallet> CreateWalletAsync(decimal initialBalance, string currency)
@@ -28,11 +31,19 @@ namespace WalletApplication.Services
                 Currency = currency
             };
 
+            if(!_currencyService.IsCurrencyValid(currency))
+            {
+                throw new Exception("Please enter a valid currency");
+            }
             return await _walletRepository.CreateAsync(wallet);
         }
 
         public async Task<Wallet> GetWalletBalanceAsync(long walletId, string currency)
         {
+            if (!_currencyService.IsCurrencyValid(currency))
+            {
+                throw new Exception("Please enter a valid currency");
+            }
             var wallet = await _walletRepository.GetByIdAsync(walletId);
 
             if (wallet == null)
@@ -50,6 +61,10 @@ namespace WalletApplication.Services
 
         public async Task<Wallet> AdjustWalletBalanceAsync(long walletId, decimal amount, string currency, string strategy)
         {
+            if (!_currencyService.IsCurrencyValid(currency))
+            {
+                throw new Exception("Please enter a valid currency");
+            }
             var wallet = GetWalletBalanceAsync(walletId, currency).Result;
 
             if (wallet == null)

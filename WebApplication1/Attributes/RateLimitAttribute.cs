@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Data;
+using WalletAppication.Interfaces;
 using WalletAppication.Services;
 
 namespace WalletAppication.Attributes
@@ -17,7 +18,7 @@ namespace WalletAppication.Attributes
         public override async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var clientIp = context.HttpContext.Connection.RemoteIpAddress?.ToString();
-            var _rateLimiterService = context.HttpContext.RequestServices.GetRequiredService<RateLimiterService>();
+            var _rateLimiterService = context.HttpContext.RequestServices.GetRequiredService<IRateLimiterService>();
             if (string.IsNullOrWhiteSpace(clientIp) || _rateLimiterService.IsRateLimited(clientIp, _endpoint))
             {
                 context.Result = new StatusCodeResult(429); // Too Many Requests

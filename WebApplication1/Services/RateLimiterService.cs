@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
+using WalletAppication.Interfaces;
 
 namespace WalletAppication.Services
 {
-    public class RateLimiterService
+    public class RateLimiterService : IRateLimiterService
     {
         private readonly IMemoryCache _cache;
         private readonly int _maxRequestsPerMinute;

@@ -6,23 +6,21 @@ namespace WalletAppication.Repositories
 {
     public class WalletRepository : IWalletRepository
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IGenericRepository<Wallet> _genericRepository;
 
-        public WalletRepository(AppDbContext dbContext)
+        public WalletRepository(IGenericRepository<Wallet> genericRepository)
         {
-            _dbContext = dbContext;
+            _genericRepository = genericRepository;
         }
 
-        public async Task<Wallet> CreateAsync(Wallet wallet)
+        public Task<Wallet> CreateAsync(Wallet wallet)
         {
-            _dbContext.Wallet.Add(wallet);
-            await _dbContext.SaveChangesAsync();
-            return wallet;
+            return _genericRepository.CreateAsync(wallet);
         }
 
-        public async Task<Wallet> GetByIdAsync(long walletId)
+        public Task<Wallet> GetByIdAsync(long walletId)
         {
-            var wallet = await _dbContext.Wallet.FirstOrDefaultAsync(w => w.Id == walletId);
+            var wallet = _genericRepository.GetByIdAsync(walletId);
             if (wallet == null)
             {
                 throw new KeyNotFoundException($"Wallet with ID {walletId} not found.");
@@ -31,10 +29,9 @@ namespace WalletAppication.Repositories
             return wallet;
         }
 
-        public async Task UpdateAsync(Wallet wallet)
+        public Task UpdateAsync(Wallet wallet)
         {
-            _dbContext.Wallet.Update(wallet);
-            await _dbContext.SaveChangesAsync();
+             return _genericRepository.UpdateAsync(wallet);
         }
     }
 }

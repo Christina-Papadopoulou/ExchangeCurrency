@@ -7,18 +7,17 @@ namespace WalletAppication.Repositories
 {
     public class CurrencyRateRepository : ICurrencyRateRepository
     {
-        private readonly AppDbContext _dbContext;
+        private readonly IGenericRepository<ECBRate> _genericRepository;
 
-        public CurrencyRateRepository(AppDbContext dbContext)
+        public CurrencyRateRepository(IGenericRepository<ECBRate> genericRepository)
         {
-            _dbContext = dbContext;
+            _genericRepository = genericRepository;
         }
 
-        public async Task<List<ECBRate>> GetAllCurrencies()
+        public Task<List<ECBRate>> GetAllCurrencies()
         {
-            return await _dbContext.CurrencyRates.ToListAsync();
+            return _genericRepository.GetAllAsync();
         }
 
-       
     }
 }

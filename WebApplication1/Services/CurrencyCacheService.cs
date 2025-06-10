@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using WalletAppication.Interfaces;
+using WalletAppication.Repositories;
 using WalletApplication.Domain;
 
 namespace WalletAppication.Services
@@ -8,17 +9,17 @@ namespace WalletAppication.Services
     public class CurrencyCacheService : ICurrencyCacheService
     {
         private readonly IMemoryCache _memoryCache;
-        private readonly AppDbContext _dbContext;
+        private readonly ICurrencyRateRepository _currencyRateRepository;
         private static readonly TimeSpan CacheExpiration = TimeSpan.FromMinutes(5);
 
-        public CurrencyCacheService(IMemoryCache memoryCache, AppDbContext dbContext)
+        public CurrencyCacheService(IMemoryCache memoryCache, ICurrencyRateRepository currencyRateRepository)
         {
             _memoryCache = memoryCache;
-            _dbContext = dbContext;
+            _currencyRateRepository = currencyRateRepository;
         }
 
         // Retrieve rate from cache, or fall back to the database if not in the cache
-        public async Task<decimal> GetCurrencyConversionRateAsync(string currency)
+        public decimal GetCurrencyConversionRateAsync(string currency)
         {
             // First check if the rate is cached
             if (_memoryCache.TryGetValue(currency, out decimal rate))
@@ -27,7 +28,7 @@ namespace WalletAppication.Services
             }
 
             // If not cached, retrieve from database
-            rate = await GetCurrencyConversionRateFromDatabaseAsync(currency);
+            rate = GetCurrencyConversionRateFromDatabaseAsync(currency);
 
             // Cache the retrieved rate for future use
             SetCurrencyRateInCache(currency, rate);
@@ -36,14 +37,13 @@ namespace WalletAppication.Services
         }
 
         // Retrieves currency rate from the database
-        private async Task<decimal> GetCurrencyConversionRateFromDatabaseAsync(string currency)
+        private decimal GetCurrencyConversionRateFromDatabaseAsync(string currency)
         {
-            var currencyRate = await _dbContext.CurrencyRates
-                                               .Where(w => w.Currency == currency)
-                                               .Select(w => w.Rate)
-                                               .FirstOrDefaultAsync();
-
-            return currencyRate == default ? 1 : currencyRate; // Return 1 if not found
+            var allRates = _currencyRateRepository.GetAllCurrencies().Result;
+            var currencyRate = allRates.FirstOrDefault(w => w.Currency.ToLower() == currency.ToLower());
+            if (currencyRate == null)
+                return 1;
+            return currencyRate.Rate; 
         }
 
         // Caches the rate with an expiration time
@@ -56,7 +56,7 @@ namespace WalletAppication.Services
         public void RefreshAllRates()
         {
             // Example of updating multiple rates in the cache (e.g., update all at once after periodic updates)
-            var allRates = _dbContext.CurrencyRates.ToList();
+            var allRates = _currencyRateRepository.GetAllCurrencies().Result;
             foreach (var rate in allRates)
             {
                 _memoryCache.Set(rate.Currency, rate.Rate, CacheExpiration);

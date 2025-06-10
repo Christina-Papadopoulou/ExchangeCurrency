@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using Autofac.Core;
 using ECBGateway;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -28,8 +29,9 @@ namespace WalletAppication.Modules
             builder.RegisterType<CurrencyRateRepository>().As<ICurrencyRateRepository>().InstancePerLifetimeScope();
             builder.RegisterType<CurrencyService>().As<ICurrencyService>().InstancePerLifetimeScope();
             builder.RegisterType<AdjustmentStrategyFactory>().As<IAdjustmentStrategyFactory>().InstancePerLifetimeScope();
-            builder.RegisterType<RateLimiterService>().As<IRateLimiterService>().InstancePerLifetimeScope();
             builder.RegisterType<CurrencyCacheService>().As<ICurrencyCacheService>().InstancePerLifetimeScope();
+            builder.RegisterGeneric(typeof(GenericRepository<>)).As(typeof(IGenericRepository<>)).InstancePerLifetimeScope();
+            builder.RegisterType<RateLimiterService>().As<IRateLimiterService>().SingleInstance();
 
             // Register IDbConnection for SQL Server
             builder.Register(c =>

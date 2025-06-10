@@ -16,7 +16,7 @@ namespace WalletAppication.Services
         public bool IsCurrencyValid(string currency)
         {
             var currencies = _currencyRateRepository.GetAllCurrencies().Result;
-            if (currencies.First(y => y.Currency.ToLower() == currency.ToLower()) == null)
+            if (currencies.FirstOrDefault(y => y.Currency.ToLower() == currency.ToLower()) == null)
             {
                 return false;
             }

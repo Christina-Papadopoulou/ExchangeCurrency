@@ -13,7 +13,8 @@ builder.Services.AddHttpClient();
 
 // 2. Register DbContext (for EF Core)
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")),
+    ServiceLifetime.Scoped);
 
 // 3. Set up Autofac container and register modules
 var configuration = builder.Configuration;

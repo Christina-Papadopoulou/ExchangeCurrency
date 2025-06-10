@@ -31,7 +31,7 @@ namespace WalletApplication.Services
                 Currency = currency
             };
 
-            if(!_currencyService.IsCurrencyValid(currency))
+            if(!_currencyService.IsCurrencyValid(currency) && currency.ToLower() != "eur")
             {
                 throw new Exception("Please enter a valid currency");
             }
@@ -51,7 +51,7 @@ namespace WalletApplication.Services
 
             if (wallet.Currency != currency)
             {
-                var rate = await _currencyCacheService.GetCurrencyConversionRateAsync(currency);
+                var rate = _currencyCacheService.GetCurrencyConversionRateAsync(currency);
                 wallet.Balance *= rate;
                 wallet.Currency = currency;
             }

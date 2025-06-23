@@ -13,7 +13,7 @@ namespace ECBGateway
         public async Task GetDailyRatesAsync_ShouldReturnRatesIncludingEUR()
         {
             // Arrange
-            var httpClient = new HttpClient(); // You could mock this too
+            var httpClient = new HttpClient(); 
             var client = new ECBClient(httpClient);
 
             // Act
